@@ -2,7 +2,7 @@
 A small program for a discord bot that asks a group questions where users can vote for each other.
 
 Functions:
-- Opens threads and asks questions inside from the file "question_file.txt"
+- Asks questions from the file "question_file.txt" and opens public threads for discussions and voting
 - Set target channel to avoid direct questions there
 - Command based activities
 - Several debug commands for functionallity checks
@@ -13,7 +13,7 @@ Functions:
 HOW TO USE:
 1. Create a file named "token_file.txt" and paste in your discord application token
 2. If you wish to use the automatic questions:
-    - Add your questions to the file question_file.txt, one per line
+    - Add your questions to the file "question_file.txt", one per line
     - Use the command $SphinxieSetChannel in a channel to set that as the channel where questions will appear
     - Use the command $SphinxieSetQuestionTime hh mm to set the time at which questions are sent otherwise it will default to midnight in local time
 
@@ -21,3 +21,5 @@ Planned Features:
 - A list of questions included with the program itself
 - Poll summary at the end of every day (current rankings)
 - Questions that target specific users/have options of types other than the users
+- Preventing users from voting more than once
+- Preventing crashing on votes after restart and before asking question

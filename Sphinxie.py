@@ -21,6 +21,8 @@ targetChannel = None
 targetThread = None
 targetTime = datetime.time(hour=0, minute=0, tzinfo=local_tz)
 
+givenVotes = []
+
 # The loop checks what time it is and if it is the specified time
 # and there is a channel specified, automatically asks a question there
 @tasks.loop(seconds=30)
@@ -150,7 +152,6 @@ async def on_message(message):
         
     if message.content.startswith("$SphinxieMakePoll"):
         options = get_members()
-        options.append("No One")
         await make_poll(message.channel, get_question(), options)
     
     if message.content.startswith("$SphinxieCreateThread"):
@@ -161,6 +162,14 @@ async def on_message(message):
             pass
         await message.channel.send("Consumed questions cleared!")
 
+    if message.content.startswith("$SphinxieVote"):
+        voteResult = vote(message.content)
+        users = get_members()
+        await message.channel.send("Successfully voted for "+users[voteResult]+"!")
+
+    if message.content.startswith("$SphinxieFinishVoting"):
+        await message.channel.send(makeSummary())
+
 async def ask_question(location):
     """
     Makes a poll with a question at the specified location,
@@ -168,9 +177,9 @@ async def ask_question(location):
     
     :param location: The channel in which to send the poll (channel)
     """
+    initializeVoting()
     question = get_question()
     options = get_members()
-    options.append("No One")
     pollMessage = await make_poll(location, question, options)
     if pollMessage != None:
         await open_thread(pollMessage, question)
@@ -205,9 +214,12 @@ async def make_poll(location, question, options):
         await location.send("There are currently no more questions left to ask.")
         return
     else:
-        poll = discord.Poll(question=question, duration=(datetime.timedelta(days=7)))
-        for option in options: poll.add_answer(text=option)
-        message = await location.send(poll=poll)
+        poll = question + "\n"
+        n = 0
+        while n<len(options):
+            poll+=(str(n+1)+"- "+options[n]+"\n")
+            n+=1
+        message = await location.send(poll)
         return message
 
 def get_question():
@@ -266,7 +278,50 @@ def get_members():
     for member in unsanitizedMembers:
         if member.global_name != None:
             members.append(member.global_name)
+    members.append("No One")
     return members
+
+def initializeVoting():
+    global givenVotes
+    givenVotes = []
+    amount = len(get_members())
+    while len(givenVotes) < amount:
+        givenVotes.append(0)
+
+def vote(message):
+    global givenVotes
+    content = message.split()
+    try:
+        target = int(content[1])
+    except ValueError:
+        return False
+    except IndexError:
+        return False
+    givenVotes[target-1]+=1
+    return target-1
+
+def makeSummary():
+    users = get_members()
+    n = 0
+    highest = 0
+    winners = []
+    while n < len(users):
+        if givenVotes[n] > highest:
+            highest = givenVotes[n]
+            winners = [n]
+        elif givenVotes[n] == highest:
+            winners.append(n)
+        n+=1
+    if highest == 0:
+        return "There are no winners because no one got any votes."
+    elif len(winners) == 1:
+        return "The winner is "+users[winners[0]]+" with "+str(highest)+" votes!"
+    else:
+        winnerString = ""
+        winners.reverse()
+        for n in winners:
+            winnerString += users[winners[n]]+", "
+        return "The winners are: "+winnerString+"with "+str(highest)+" votes each!"
 
 def setTargetTime(message):
     """
