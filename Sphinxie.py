@@ -32,6 +32,7 @@ async def daily_question():
     timeNow = datetime.datetime.now(local_tz)
     if timeNow.hour == targetTime.hour and timeNow.minute == targetTime.minute \
     and targetChannel != None:
+        await targetThread.send(makeSummary())
         await ask_question(targetChannel)
         await asyncio.sleep(60)
 
@@ -83,6 +84,8 @@ async def on_ready():
 
     if not daily_question.is_running():
             daily_question.start()
+
+    initializeVoting()
 
     await app_commands.CommandTree.sync(client.tree)
 

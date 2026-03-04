@@ -22,5 +22,6 @@ Planned Features:
 - Poll summary at the end of every day (current rankings)
 - Questions that target specific users/have options of types other than the users
 - Preventing users from voting more than once
-- Preventing crashing on votes after restart and before asking question/restoring votes from previous session on boot
+- Setting to hide who users voted for until final summary
+- Restoring votes from previous session on boot
 - Joining of saved data for target channels and times in one file
